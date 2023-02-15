@@ -1,1 +1,4 @@
 vault-password
+terraform/.terraform
+ansible/inventory.ini
+.DS_Store
