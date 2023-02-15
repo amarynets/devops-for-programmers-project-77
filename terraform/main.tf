@@ -34,9 +34,9 @@ output "webservers" {
 }
 
 resource "digitalocean_droplet" "web" {
-  count              = 1
+  count              = 2
   image              = "ubuntu-22-10-x64"
-  name               = "web-${count.index + 1}"
+  name               = "web-${count.index}"
   region             = "fra1"
   size               = "s-1vcpu-1gb"
   private_networking = true
@@ -68,24 +68,6 @@ resource "digitalocean_database_cluster" "postgres" {
   node_count = 1
 }
 
-output "db-host" {
-  value = {
-    host = digitalocean_database_cluster.postgres.private_host,
-    port = digitalocean_database_cluster.postgres.port,
-    user = digitalocean_database_cluster.postgres.user,
-    
-  }
-}
-
-output "db-password" {
-  value = digitalocean_database_cluster.postgres.password
-  sensitive = true
-}
-
-output "db" {
-  value = digitalocean_database_db.db.name
-}
-
 output "db_vault" {
   value = templatefile(
         "${path.module}/generated_vault.tmpl",
@@ -97,4 +79,42 @@ output "db_vault" {
             database =  digitalocean_database_db.db.name
         }
     )
+}
+
+resource "digitalocean_record" "record" {
+  domain = digitalocean_domain.domain.name
+  type   = "A"
+  name   = "@"
+  value  = digitalocean_loadbalancer.loadbalancer.ip
+}
+
+resource "digitalocean_domain" "domain" {
+  name = "increadeble.tech"
+}
+
+resource "digitalocean_certificate" "certificate" {
+  name    = "certificate"
+  type    = "lets_encrypt"
+  domains = [digitalocean_domain.domain.name]
+}
+
+resource "digitalocean_loadbalancer" "loadbalancer" {
+  name   = "loadbalancer"
+  region = "fra1"
+
+  forwarding_rule {
+    entry_protocol   = "https"
+    entry_port       = 443
+    target_protocol  = "http"
+    target_port      = 8000
+    certificate_name = digitalocean_certificate.certificate.name
+  }
+
+  healthcheck {
+    port     = 8000
+    protocol = "http"
+    path     = "/"
+  }
+
+  droplet_ids = digitalocean_droplet.web.*.id
 }

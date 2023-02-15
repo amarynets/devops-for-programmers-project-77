@@ -9,9 +9,9 @@ destroy-infrastructure:
 	cd terraform; terraform destroy; cd - > /dev/null
 
 encrypt:
-	ansible-vault encrypt --vault-password-file vault-password ansible/group_vars/all/vault.yml
+	ansible-vault encrypt --vault-password-file vault-password ansible/group_vars/webservers/vault.yml
 decrypt:
-	ansible-vault decrypt --vault-password-file vault-password ansible/group_vars/all/vault.yml
+	ansible-vault decrypt --vault-password-file vault-password ansible/group_vars/webservers/vault.yml
 
 
 install:
