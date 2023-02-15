@@ -53,3 +53,48 @@ output "ansible_inventory" {
         }
     )
 }
+
+resource "digitalocean_database_db" "db" {
+  cluster_id = digitalocean_database_cluster.postgres.id
+  name       = "redminedb"
+}
+
+resource "digitalocean_database_cluster" "postgres" {
+  name       = "postgres-cluster"
+  engine     = "pg"
+  version    = "15"
+  size       = "db-s-1vcpu-1gb"
+  region     = "fra1"
+  node_count = 1
+}
+
+output "db-host" {
+  value = {
+    host = digitalocean_database_cluster.postgres.private_host,
+    port = digitalocean_database_cluster.postgres.port,
+    user = digitalocean_database_cluster.postgres.user,
+    
+  }
+}
+
+output "db-password" {
+  value = digitalocean_database_cluster.postgres.password
+  sensitive = true
+}
+
+output "db" {
+  value = digitalocean_database_db.db.name
+}
+
+output "db_vault" {
+  value = templatefile(
+        "${path.module}/generated_vault.tmpl",
+        {
+            host = digitalocean_database_cluster.postgres.private_host,
+            port = digitalocean_database_cluster.postgres.port,
+            user = digitalocean_database_cluster.postgres.user,
+            password = nonsensitive(digitalocean_database_cluster.postgres.password),
+            database =  digitalocean_database_db.db.name
+        }
+    )
+}

@@ -1,5 +1,10 @@
 infrastructure:
-	cd terraform; terraform apply; terraform output -raw ansible_inventory > ../ansible/invertory.ini; cd - > /dev/null
+	cd terraform; terraform apply; \
+	terraform output -raw ansible_inventory > ../ansible/inventory.ini; \
+	terraform output -raw db_vault > ../ansible/group_vars/webservers/generated_vault.yml; \
+	cd - > /dev/null; \
+	ansible-vault encrypt --vault-password-file vault-password ansible/group_vars/webservers/generated_vault.yml
+
 destroy-infrastructure:
 	cd terraform; terraform destroy; cd - > /dev/null
 
