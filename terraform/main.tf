@@ -81,19 +81,19 @@ output "db_vault" {
     )
 }
 
-resource "digitalocean_record" "record" {
-  domain = digitalocean_domain.domain.name
-  type   = "A"
-  name   = "@"
-  value  = digitalocean_loadbalancer.loadbalancer.ip
-}
+# resource "digitalocean_record" "record" {
+#   domain = digitalocean_domain.domain.name
+#   type   = "A"
+#   name   = "@"
+#   value  = digitalocean_loadbalancer.loadbalancer.ip
+# }
 
 resource "digitalocean_domain" "domain" {
   name = "increadeble.tech"
 }
 
 resource "digitalocean_certificate" "certificate" {
-  name    = "certificate"
+  name    = "certificate-1"
   type    = "lets_encrypt"
   domains = [digitalocean_domain.domain.name]
 }
@@ -101,6 +101,13 @@ resource "digitalocean_certificate" "certificate" {
 resource "digitalocean_loadbalancer" "loadbalancer" {
   name   = "loadbalancer"
   region = "fra1"
+
+  forwarding_rule {
+    entry_protocol  = "http"
+    entry_port      = 80
+    target_protocol = "http"
+    target_port     = 8000
+  }
 
   forwarding_rule {
     entry_protocol   = "https"
@@ -115,6 +122,11 @@ resource "digitalocean_loadbalancer" "loadbalancer" {
     protocol = "http"
     path     = "/"
   }
+
+  sticky_sessions {
+    type = "cookies"
+  }
+  redirect_http_to_https = true
 
   droplet_ids = digitalocean_droplet.web.*.id
 }
