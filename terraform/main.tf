@@ -1,5 +1,8 @@
 
 variable "do_token" {}
+variable "datadog_api_key" {}
+variable "datadog_app_key" {}
+variable "datadog_api_url" {}
 
 data "digitalocean_ssh_key" "mysshkey" {
   name = "mykey"
@@ -106,4 +109,18 @@ resource "digitalocean_loadbalancer" "loadbalancer" {
   redirect_http_to_https = true
 
   droplet_ids = digitalocean_droplet.web.*.id
+}
+
+resource "datadog_monitor" "healthcheck_monitor" {
+  name         = "Servers healthcheck"
+  type         = "service check"
+  query        = "\"http.can_connect\".over(\"*\").by(\"*\").last(3).count_by_status()"
+  message      = ""
+  include_tags = false
+
+  monitor_thresholds {
+    warning  = 2
+    critical = 2
+    ok       = 2
+  }
 }
