@@ -1,23 +1,5 @@
 ## Terraform configuration
-terraform {
-    cloud {
-        organization = "amarynets"
-        workspaces {
-            name = "amarynets"
-        }
-    }
-    required_providers {
-        random = {
-            source = "hashicorp/random"
-            version = "3.0.1"
-        }
-        digitalocean = {
-            source = "digitalocean/digitalocean"
-            version = "1.22.2"
-        }
-    }
-    required_version = ">= 1.1.0"
-}
+
 
 variable "do_token" {}
 
@@ -39,7 +21,6 @@ resource "digitalocean_droplet" "web" {
   name               = "web-${count.index}"
   region             = "fra1"
   size               = "s-1vcpu-1gb"
-  private_networking = true
   ssh_keys = [
     data.digitalocean_ssh_key.mysshkey.id
   ]
@@ -81,19 +62,19 @@ output "db_vault" {
     )
 }
 
-# resource "digitalocean_record" "record" {
-#   domain = digitalocean_domain.domain.name
-#   type   = "A"
-#   name   = "@"
-#   value  = digitalocean_loadbalancer.loadbalancer.ip
-# }
+resource "digitalocean_record" "record" {
+  domain = digitalocean_domain.domain.name
+  type   = "A"
+  name   = "@"
+  value  = digitalocean_loadbalancer.loadbalancer.ip
+}
 
 resource "digitalocean_domain" "domain" {
   name = "increadeble.tech"
 }
 
 resource "digitalocean_certificate" "certificate" {
-  name    = "certificate-1"
+  name    = "certificate"
   type    = "lets_encrypt"
   domains = [digitalocean_domain.domain.name]
 }
@@ -125,6 +106,8 @@ resource "digitalocean_loadbalancer" "loadbalancer" {
 
   sticky_sessions {
     type = "cookies"
+    cookie_name = "DOBCOOKIE"
+    cookie_ttl_seconds = 3600
   }
   redirect_http_to_https = true
 
