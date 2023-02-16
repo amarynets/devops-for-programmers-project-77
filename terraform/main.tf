@@ -84,19 +84,19 @@ resource "digitalocean_loadbalancer" "loadbalancer" {
     entry_protocol  = "http"
     entry_port      = 80
     target_protocol = "http"
-    target_port     = 3000
+    target_port     = 80
   }
 
   forwarding_rule {
     entry_protocol   = "https"
     entry_port       = 443
     target_protocol  = "http"
-    target_port      = 3000
+    target_port      = 80
     certificate_name = digitalocean_certificate.certificate.name
   }
 
   healthcheck {
-    port     = 3000
+    port     = 80
     protocol = "http"
     path     = "/"
   }
