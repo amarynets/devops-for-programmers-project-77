@@ -2,4 +2,4 @@ vault-password
 terraform/.terraform
 ansible/inventory.ini
 .DS_Store
-generated_vault.yml
+vault_generated.yml

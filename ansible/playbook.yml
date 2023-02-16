@@ -2,6 +2,10 @@
   hosts: all
   tags:
     - setup
+  pre_tasks:
+    - name: Update repos
+      ansible.builtin.apt:
+        update_cache: true
   tasks:
     - name: Add Docker GPG apt Key
       ansible.builtin.apt_key:

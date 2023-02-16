@@ -45,7 +45,7 @@ resource "digitalocean_database_cluster" "postgres" {
 
 output "db_vault" {
   value = templatefile(
-        "${path.module}/generated_vault.tmpl",
+        "${path.module}/vault_generated.tmpl",
         {
             host = digitalocean_database_cluster.postgres.private_host,
             port = digitalocean_database_cluster.postgres.port,
@@ -81,14 +81,14 @@ resource "digitalocean_loadbalancer" "loadbalancer" {
     entry_protocol  = "http"
     entry_port      = 80
     target_protocol = "http"
-    target_port     = 8000
+    target_port     = 3000
   }
 
   forwarding_rule {
     entry_protocol   = "https"
     entry_port       = 443
     target_protocol  = "http"
-    target_port      = 8000
+    target_port      = 3000
     certificate_name = digitalocean_certificate.certificate.name
   }
 
