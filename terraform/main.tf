@@ -13,11 +13,11 @@ output "webservers" {
 }
 
 resource "digitalocean_droplet" "web" {
-  count              = 2
-  image              = "ubuntu-22-10-x64"
-  name               = "web-${count.index}"
-  region             = "fra1"
-  size               = "s-1vcpu-1gb"
+  count  = 2
+  image  = "ubuntu-22-10-x64"
+  name   = "web-${count.index}"
+  region = "fra1"
+  size   = "s-1vcpu-1gb"
   ssh_keys = [
     data.digitalocean_ssh_key.mysshkey.id
   ]
@@ -25,11 +25,11 @@ resource "digitalocean_droplet" "web" {
 
 output "ansible_inventory" {
   value = templatefile(
-        "${path.module}/inventory.tmpl",
-        {
-            webservers = digitalocean_droplet.web
-        }
-    )
+    "${path.module}/inventory.tmpl",
+    {
+      webservers = digitalocean_droplet.web
+    }
+  )
 }
 
 resource "digitalocean_database_db" "db" {
@@ -48,15 +48,15 @@ resource "digitalocean_database_cluster" "postgres" {
 
 output "db_vault" {
   value = templatefile(
-        "${path.module}/vault_generated.tmpl",
-        {
-            host = digitalocean_database_cluster.postgres.private_host,
-            port = digitalocean_database_cluster.postgres.port,
-            user = digitalocean_database_cluster.postgres.user,
-            password = nonsensitive(digitalocean_database_cluster.postgres.password),
-            database =  digitalocean_database_db.db.name
-        }
-    )
+    "${path.module}/vault_generated.tmpl",
+    {
+      host     = digitalocean_database_cluster.postgres.private_host,
+      port     = digitalocean_database_cluster.postgres.port,
+      user     = digitalocean_database_cluster.postgres.user,
+      password = nonsensitive(digitalocean_database_cluster.postgres.password),
+      database = digitalocean_database_db.db.name
+    }
+  )
 }
 
 resource "digitalocean_record" "record" {
@@ -102,8 +102,8 @@ resource "digitalocean_loadbalancer" "loadbalancer" {
   }
 
   sticky_sessions {
-    type = "cookies"
-    cookie_name = "DOBCOOKIE"
+    type               = "cookies"
+    cookie_name        = "DOBCOOKIE"
     cookie_ttl_seconds = 3600
   }
   redirect_http_to_https = true

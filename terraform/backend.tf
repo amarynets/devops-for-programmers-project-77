@@ -1,10 +1,10 @@
 terraform {
-    cloud {
-        organization = "amarynets"
-        workspaces {
-            name = "amarynets"
-        }
+  cloud {
+    organization = "amarynets"
+    workspaces {
+      name = "amarynets"
     }
-    
-    required_version = ">= 1.1.0"
+  }
+
+  required_version = ">= 1.1.0"
 }

@@ -1,18 +1,18 @@
 terraform {
   required_providers {
-        random = {
-            source = "hashicorp/random"
-            version = "3.0.1"
-        }
-        digitalocean = {
-            source = "digitalocean/digitalocean"
-            version = "2.26.0"
-        }
-        datadog = {
-          source  = "DataDog/datadog"
-          version = "3.21.0"
-        }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.0.1"
     }
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "2.26.0"
+    }
+    datadog = {
+      source  = "DataDog/datadog"
+      version = "3.21.0"
+    }
+  }
 }
 
 provider "digitalocean" {
