@@ -52,11 +52,11 @@ output "vault" {
   value = templatefile(
     "${path.module}/vault_generated.tmpl",
     {
-      host     = digitalocean_database_cluster.postgres.private_host,
-      port     = digitalocean_database_cluster.postgres.port,
-      user     = digitalocean_database_cluster.postgres.user,
-      password = nonsensitive(digitalocean_database_cluster.postgres.password),
-      database = digitalocean_database_db.db.name,
+      host            = digitalocean_database_cluster.postgres.private_host,
+      port            = digitalocean_database_cluster.postgres.port,
+      user            = digitalocean_database_cluster.postgres.user,
+      password        = nonsensitive(digitalocean_database_cluster.postgres.password),
+      database        = digitalocean_database_db.db.name,
       datadog_api_key = nonsensitive(var.datadog_api_key)
     }
   )

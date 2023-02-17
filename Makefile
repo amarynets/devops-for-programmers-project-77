@@ -8,7 +8,7 @@ infrastructure:
 	terraform output -raw ansible_inventory > ../ansible/inventory.ini; \
 	terraform output -raw vault > ../ansible/group_vars/webservers/vault_generated.yml; \
 	cd ../ \
-	random_pwd; enctypt
+	random_pwd enctypt
 
 destroy-infrastructure:
 	cd terraform; terraform destroy;
