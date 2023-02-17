@@ -3,6 +3,8 @@ variable "do_token" {}
 variable "datadog_api_key" {}
 variable "datadog_app_key" {}
 variable "datadog_api_url" {}
+variable "DOMAIN" {}
+variable "PROJECT_NAME" {}
 
 data "digitalocean_ssh_key" "mysshkey" {
   name = "mykey"
@@ -15,7 +17,7 @@ output "webservers" {
 resource "digitalocean_droplet" "web" {
   count  = 2
   image  = "ubuntu-22-10-x64"
-  name   = "web-${count.index}"
+  name   = "${var.PROJECT_NAME}-web-${count.index}"
   region = "fra1"
   size   = "s-1vcpu-1gb"
   ssh_keys = [
@@ -34,11 +36,11 @@ output "ansible_inventory" {
 
 resource "digitalocean_database_db" "db" {
   cluster_id = digitalocean_database_cluster.postgres.id
-  name       = "redminedb"
+  name       = "${var.PROJECT_NAME}-db"
 }
 
 resource "digitalocean_database_cluster" "postgres" {
-  name       = "postgres-cluster"
+  name       = "${var.PROJECT_NAME}-postgres-cluster"
   engine     = "pg"
   version    = "15"
   size       = "db-s-1vcpu-1gb"
@@ -46,7 +48,7 @@ resource "digitalocean_database_cluster" "postgres" {
   node_count = 1
 }
 
-output "db_vault" {
+output "vault" {
   value = templatefile(
     "${path.module}/vault_generated.tmpl",
     {
@@ -54,7 +56,8 @@ output "db_vault" {
       port     = digitalocean_database_cluster.postgres.port,
       user     = digitalocean_database_cluster.postgres.user,
       password = nonsensitive(digitalocean_database_cluster.postgres.password),
-      database = digitalocean_database_db.db.name
+      database = digitalocean_database_db.db.name,
+      datadog_api_key = nonsensitive(var.datadog_api_key)
     }
   )
 }
@@ -67,17 +70,17 @@ resource "digitalocean_record" "record" {
 }
 
 resource "digitalocean_domain" "domain" {
-  name = "increadeble.tech"
+  name = var.DOMAIN
 }
 
 resource "digitalocean_certificate" "certificate" {
-  name    = "certificate"
+  name    = "${var.PROJECT_NAME}-certificate"
   type    = "lets_encrypt"
   domains = [digitalocean_domain.domain.name]
 }
 
 resource "digitalocean_loadbalancer" "loadbalancer" {
-  name   = "loadbalancer"
+  name   = "${var.PROJECT_NAME}-loadbalancer"
   region = "fra1"
 
   forwarding_rule {
@@ -103,7 +106,7 @@ resource "digitalocean_loadbalancer" "loadbalancer" {
 
   sticky_sessions {
     type               = "cookies"
-    cookie_name        = "DOBCOOKIE"
+    cookie_name        = "${var.PROJECT_NAME}_STICKY_COOKIE"
     cookie_ttl_seconds = 3600
   }
   redirect_http_to_https = true

@@ -3,3 +3,5 @@ terraform/.terraform
 ansible/inventory.ini
 .DS_Store
 vault_generated.yml
+*.tfstate
+.terraform.lock.hcl

@@ -14,14 +14,12 @@ https://increadeble.tech/
 3. Create a [DataDog](https://app.datadoghq.eu/)(DD) account
 4. Generate and store `datadog_api_url, datadog_api_key, datadog_app_key`
 5. Add `do_token, datadog_api_url, datadog_api_key, datadog_app_key` into [Terraform Cloud->Variables](https://app.terraform.io/app/amarynets/workspaces/amarynets/variables)
-6. Maybe you have to update [vault.yml](ansible/group_vars/webservers/vault.yml) with new DD api key
+6. Create Terraform Cloud variables for `PROJECT_NAME` and `DOMAIN` with expected values
 
 ### Step 2. Setup infrastructure
 
 1. Clone this repo
-2. Open terraform folder
-3. Run `terraform login` and paste token from 
-4. Run `terraform init`
+2. Run `make prepare`. In the input you have to pass the token from Terraform Cloud
 
 ### Step 3. Create infrastructure
 5. `make infrastructure` will provision all required infrastructure
