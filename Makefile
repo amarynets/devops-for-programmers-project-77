@@ -1,14 +1,14 @@
 prepare:
 	cd terraform; terraform login; terraform init
-random_pwd:
-	echo $RANDOM | base64 | head -c 20 > vault-password
+	
 infrastructure:
+	echo $RANDOM | base64 | head -c 20 > vault-password; \
 	rm -rf ansible/group_vars/webservers/vault_generated.yml; \
 	cd terraform; terraform apply; \
 	terraform output -raw ansible_inventory > ../ansible/inventory.ini; \
 	terraform output -raw vault > ../ansible/group_vars/webservers/vault_generated.yml; \
-	cd ../ \
-	random_pwd enctypt
+	cd ../; \
+	ansible-vault encrypt --vault-password-file vault-password ansible/group_vars/webservers/vault_generated.yml
 
 destroy-infrastructure:
 	cd terraform; terraform destroy;
@@ -26,3 +26,5 @@ deploy:
 	ansible-playbook ansible/playbook.yml -i ansible/inventory.ini --vault-password-file vault-password --tags "deploy"
 
 relese: infrastructure install setup deploy
+
+.PHONY: random_pwd encrypt decrypt
