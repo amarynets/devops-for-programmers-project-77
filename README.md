@@ -22,39 +22,31 @@ https://increadeble.tech/
 2. Run `make prepare`. In the input you have to pass the token from Terraform Cloud
 
 ### Step 3. Create infrastructure
-5. `make infrastructure` will provision all required infrastructure
+5. `make setup` will provision all required infrastructure and software on servers
 6. Previous command will create `inventory.ini`(IP addresses for webservers host) and `vault_generated`(A vault with DB credentials)
 
-### Step 4. Setup Ansible
+### Step 4. Deploy Redmine app
 
-1. Install Ansible. Preferrably version >= core 2.14.1
-2. `make install` will install required roles
+1. `make deploy`
 
-### Step 5. Setup servers
-
-1. Run `make setup`
-
-### Step 6. Deploy Redmine app
-
-1. `male deploy`
-
-Step 3, 4,5, 6 can be replaced with `make relese`
+Step 2, 3, 4 can be replaced with `make all`
 
 ## Test deployed application
 
-Application will be deployed at `httsp://your-domain`. I've deployed it to [increadeble.tech](https://increadeble.tech).
+Application will be deployed at `increadeble.tech`. I've deployed it to [increadeble.tech](https://increadeble.tech).
 
 ## Make commands
 Terraform
-- Setup infrastructure: `make infrastructure`
-- Destroy destroy: `make destroy-infrastructure`
+- Setup infrastructure: `make setup`
+- Destroy destroy: `make destroy`
 
 Ansible
 - Encrypt webservers vault: `make encrypt`
 - Decrypt webservers vault: `make decrypt`
-- Install roles and collection: `make install`
+- Clean up inventory and vault files: `make clean-up-workdir`
+- Install roles and collection: `make prepare`
 - Setup webservers: `make setup`
 - Deploy Redmine app: `make deploy`
 
 Common
-- setup infrastructure and deploy app: `make relese`
+- setup infrastructure and deploy app: `make all`

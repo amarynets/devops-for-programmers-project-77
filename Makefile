@@ -1,30 +1,17 @@
+generate_password:
+	echo $RANDOM | base64 | head -c 20 > vault-password
 prepare:
-	cd terraform; terraform login; terraform init
-	
-infrastructure:
-	echo $RANDOM | base64 | head -c 20 > vault-password; \
-	rm -rf ansible/group_vars/webservers/vault_generated.yml; \
-	cd terraform; terraform apply; \
-	terraform output -raw ansible_inventory > ../ansible/inventory.ini; \
-	terraform output -raw vault > ../ansible/group_vars/webservers/vault_generated.yml; \
-	cd ../; \
-	ansible-vault encrypt --vault-password-file vault-password ansible/group_vars/webservers/vault_generated.yml
+	make generate_password; make -C ansible prepare; make -C terraform prepare;
 
-destroy-infrastructure:
-	cd terraform; terraform destroy;
-
-encrypt:
-	ansible-vault encrypt --vault-password-file vault-password ansible/group_vars/webservers/vault_generated.yml
-decrypt:
-	ansible-vault decrypt --vault-password-file vault-password ansible/group_vars/webservers/vault_generated.yml
-
-install:
-	cd ansible; ansible-galaxy install -r requirements.yml
 setup:
-	ansible-playbook ansible/playbook.yml -i ansible/inventory.ini --vault-password-file vault-password --tags "setup"
+	make -C ansible clean-up-workdir && \
+	make -C terraform setup-infrastructure && \
+	make -C ansible setup-servers
+	
+destroy:
+	make -C terraform destroy
+	
 deploy:
-	ansible-playbook ansible/playbook.yml -i ansible/inventory.ini --vault-password-file vault-password --tags "deploy"
+	make -C ansible run-playbook TAGS="deploy"
 
-relese: infrastructure install setup deploy
-
-.PHONY: random_pwd encrypt decrypt
+all: prepare setup deploy
